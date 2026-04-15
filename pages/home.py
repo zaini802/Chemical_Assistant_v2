@@ -1,16 +1,14 @@
 import streamlit as st
 
 def show_home():
-    st.header("🏠 Welcome to Chemical Engineering Assistant")
-    st.write("Select a module from the left sidebar to get started.")
-    
+    st.write("🏭 Chemical Engineering Assistant")
+    st.write("Welcome to your All-in-One ChemE Tool")
+    st.markdown("---")
     st.markdown("### Available Modules:")
-    st.markdown("""
-    - **Reynolds Number** – Flow type calculator
-    - **Heat Transfer** – Q = UAΔT
-    - **Pressure Drop** – ΔP calculation
-    - **Unit Converter** – Convert between units
-    - **Heat Exchanger** – LMTD, NTU, Effectiveness
-    - **Safety Analyzer** – Chemical safety data
-    - **Chatbot** – AI assistant for ChemE questions
-    """)
+    st.markdown("- 🌡️ Heat Exchanger")
+    st.markdown("- 📊 Reynolds Number")
+    st.markdown("- ⚠️ Safety Analyzer")
+    st.markdown("- 🔄 Unit Converter")
+    st.markdown("- 💬 Chatbot")
+    st.markdown("---")
+    st.info("Select a module from the left sidebar")
