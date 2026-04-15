@@ -1,8 +1,11 @@
 import streamlit as st
+from components.header import show_header
+from components.sidebar import show_sidebar
+from components.footer import show_footer
+from pages.home import show_home
 
 st.set_page_config(page_title="ChemEng Assistant", layout="wide", initial_sidebar_state="collapsed")
 
-# CSS to hide default sidebar
 st.markdown("""
 <style>
 [data-testid="stSidebarNav"] {
@@ -10,11 +13,6 @@ st.markdown("""
 }
 </style>
 """, unsafe_allow_html=True)
-
-from components.header import show_header
-from components.sidebar import show_sidebar
-from components.footer import show_footer
-from pages.home import show_home
 
 show_header()
 page = show_sidebar()
