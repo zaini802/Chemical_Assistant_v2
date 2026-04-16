@@ -114,59 +114,80 @@ def show_pressure_drop():
     st.markdown("---")
     if st.button("🔬 Calculate Pressure Drop", type="primary", use_container_width=True):
         
-        Re = (rho * v * D) / mu
+        # ========== TASK 1: INPUT VALIDATION ==========
+        errors = []
+        if L <= 0:
+            errors.append("❌ Pipe Length (L) must be greater than 0")
+        if D <= 0:
+            errors.append("❌ Pipe Diameter (D) must be greater than 0")
+        if rho <= 0:
+            errors.append("❌ Fluid Density (ρ) must be greater than 0")
+        if mu <= 0:
+            errors.append("❌ Fluid Viscosity (μ) must be greater than 0")
+        if v <= 0:
+            errors.append("❌ Flow Velocity (v) must be greater than 0")
         
-        if Re < 2000:
-            flow_type = "🟢 Laminar Flow"
-            flow_desc = "Smooth, orderly flow. Low friction. Good for viscous fluids."
-            flow_color = "#2ecc71"
-        elif Re < 4000:
-            flow_type = "🟡 Transitional Flow"
-            flow_desc = "Unstable flow. May switch between laminar and turbulent."
-            flow_color = "#f39c12"
+        if errors:
+            for err in errors:
+                st.error(err)
         else:
-            flow_type = "🔴 Turbulent Flow"
-            flow_desc = "Chaotic flow with eddies. Higher friction but better mixing."
-            flow_color = "#e74c3c"
-        
-        st.markdown('<div class="section-header"><h3>📊 Results</h3></div>', unsafe_allow_html=True)
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown(f"""
-                <div class="result-box">
-                    <p style="margin: 0; font-size: 0.9rem;">Reynolds Number (Re)</p>
-                    <p class="result-number">{Re:,.0f}</p>
-                </div>
-            """, unsafe_allow_html=True)
-        with col2:
-            st.markdown(f"""
-                <div class="result-box" style="border-color: {flow_color};">
-                    <p style="margin: 0; font-size: 0.9rem;">Flow Type</p>
-                    <p class="result-number" style="color: {flow_color}; font-size: 1.2rem;">{flow_type}</p>
-                    <p style="margin: 0; font-size: 0.8rem;">{flow_desc}</p>
-                </div>
-            """, unsafe_allow_html=True)
-        
-        st.info("""
-        **⏳ Coming in Phase 2:**
-        - Friction Factor (f) calculation
-        - Pressure Drop (ΔP) in Pa, kPa, bar, psi
-        - Head Loss (h_f) in meters
-        - Pump Power in Watts, kW, HP
-        """)
+            # ========== TASK 2: UNIT CONVERSION FRAMEWORK ==========
+            # All values are already in SI units
+            # Later phases will add multi-unit support
+            
+            Re = (rho * v * D) / mu
+            
+            if Re < 2000:
+                flow_type = "🟢 Laminar Flow"
+                flow_desc = "Smooth, orderly flow. Low friction. Good for viscous fluids."
+                flow_color = "#2ecc71"
+            elif Re < 4000:
+                flow_type = "🟡 Transitional Flow"
+                flow_desc = "Unstable flow. May switch between laminar and turbulent."
+                flow_color = "#f39c12"
+            else:
+                flow_type = "🔴 Turbulent Flow"
+                flow_desc = "Chaotic flow with eddies. Higher friction but better mixing."
+                flow_color = "#e74c3c"
+            
+            st.markdown('<div class="section-header"><h3>📊 Results</h3></div>', unsafe_allow_html=True)
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown(f"""
+                    <div class="result-box">
+                        <p style="margin: 0; font-size: 0.9rem;">Reynolds Number (Re)</p>
+                        <p class="result-number">{Re:,.0f}</p>
+                    </div>
+                """, unsafe_allow_html=True)
+            with col2:
+                st.markdown(f"""
+                    <div class="result-box" style="border-color: {flow_color};">
+                        <p style="margin: 0; font-size: 0.9rem;">Flow Type</p>
+                        <p class="result-number" style="color: {flow_color}; font-size: 1.2rem;">{flow_type}</p>
+                        <p style="margin: 0; font-size: 0.8rem;">{flow_desc}</p>
+                    </div>
+                """, unsafe_allow_html=True)
+            
+            st.info("""
+            **⏳ Coming in Phase 3:**
+            - Friction Factor (f) calculation
+            - Pressure Drop (ΔP) in Pa, kPa, bar, psi
+            - Head Loss (h_f) in meters
+            - Pump Power in Watts, kW, HP
+            """)
     
     # ========== FOOTER ==========
     st.markdown("""
-<div style="text-align: center; padding: 1rem; background: linear-gradient(135deg, #0f3443, #1a5a6e); border-radius: 10px;">
-<p style="margin: 0;">
-<span style="color: #2ecc71; font-weight: bold;">🔬</span>
-    <span style="color: #2ecc71;"> Developed by </span>
-        <span style="color: white; font-weight: bold;">ZUNAIR SHAHZAD</span>
-        <span style="color: #FFD700;"> | </span>
-            <span style="color: #FFD700;">Chemical Engineering</span>
+        <div style="text-align: center; padding: 1rem; background: linear-gradient(135deg, #0f3443, #1a5a6e); border-radius: 10px;">
+            <p style="margin: 0;">
+                <span style="color: #2ecc71; font-weight: bold;">🔬</span>
+                <span style="color: #2ecc71;"> Developed by </span>
+                <span style="color: white; font-weight: bold;">ZUNAIR SHAHZAD</span>
                 <span style="color: #FFD700;"> | </span>
-                    <span style="color: #FFD700;">UET Lahore</span>
-                        </p>
-                        </div>
-                        """, unsafe_allow_html=True)
+                <span style="color: #FFD700;">Chemical Engineering</span>
+                <span style="color: #FFD700;"> | </span>
+                <span style="color: #FFD700;">UET Lahore</span>
+            </p>
+        </div>
+    """, unsafe_allow_html=True)
