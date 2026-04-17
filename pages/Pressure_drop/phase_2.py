@@ -3,6 +3,217 @@ import math
 import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+import base64
+from io import BytesIO
+from datetime import datetime
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image as RLImage
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+
+
+def create_pdf_report(L, D, rho, mu, v, epsilon, Re, flow_type, f, dP_Pa, dP_kPa, dP_bar, dP_psi, h_f, P_W, P_kW, P_HP, Q, Q_Ls, total_K, dP_minor, fittings_list, fig=None):
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    styles = getSampleStyleSheet()
+    story = []
+
+    title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=16, textColor=colors.HexColor('#1e3c72'), alignment=1, spaceAfter=30)
+    story.append(Paragraph("Pressure Drop & Head Loss Calculator Report", title_style))
+    story.append(Spacer(1, 12))
+    story.append(Paragraph(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", styles['Normal']))
+    story.append(Spacer(1, 20))
+
+    story.append(Paragraph("Input Parameters", styles['Heading2']))
+    story.append(Spacer(1, 10))
+    input_data = [
+        ["Pipe Length (L)", f"{L} m"],
+        ["Pipe Diameter (D)", f"{D} m"],
+        ["Fluid Density (ρ)", f"{rho} kg/m³"],
+        ["Fluid Viscosity (μ)", f"{mu} Pa·s"],
+        ["Flow Velocity (v)", f"{v} m/s"],
+        ["Pipe Roughness (ε)", f"{epsilon} mm"],
+    ]
+    if total_K > 0:
+        input_data.append(["Total Minor Loss Coeff (ΣK)", f"{total_K:.3f}"])
+
+        input_table = Table(input_data, colWidths=[150, 150])
+        input_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1e3c72')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ]))
+        story.append(input_table)
+        story.append(Spacer(1, 20))
+
+        if fittings_list:
+            story.append(Paragraph("Selected Fittings", styles['Heading2']))
+            story.append(Spacer(1, 10))
+            fittings_data = [[f"• {f}"] for f in fittings_list]
+            fittings_table = Table(fittings_data, colWidths=[300])
+            fittings_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, -1), colors.beige),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ]))
+            story.append(fittings_table)
+            story.append(Spacer(1, 20))
+
+            story.append(Paragraph("Results", styles['Heading2']))
+            story.append(Spacer(1, 10))
+            result_data = [
+                ["Reynolds Number (Re)", f"{Re:,.0f}"],
+                ["Flow Type", flow_type],
+                ["Friction Factor (f)", f"{f:.6f}"],
+            ]
+            if dP_minor > 0:
+                result_data.append(["Minor Losses", f"{dP_minor:,.1f} Pa | {dP_minor/1000:.3f} kPa"])
+                result_data.extend([
+                    ["Pressure Drop", f"{dP_Pa:,.1f} Pa | {dP_kPa:.3f} kPa | {dP_bar:.5f} bar | {dP_psi:.4f} psi"],
+                    ["Head Loss (h_f)", f"{h_f:.3f} m"],
+                    ["Pump Power", f"{P_W:,.1f} W | {P_kW:.3f} kW | {P_HP:.3f} HP"],
+                    ["Flow Rate (Q)", f"{Q:.5f} m³/s | {Q_Ls:.3f} L/s"],
+                ])
+
+                result_table = Table(result_data, colWidths=[150, 250])
+                result_table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2a5298')),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ]))
+                story.append(result_table)
+                story.append(Spacer(1, 20))
+
+                if fig is not None:
+                    story.append(Paragraph("Moody Chart", styles['Heading2']))
+                    story.append(Spacer(1, 10))
+                    img_buffer = BytesIO()
+                    fig.savefig(img_buffer, format='png', dpi=150, bbox_inches='tight')
+                    img_buffer.seek(0)
+                    img = RLImage(img_buffer, width=6*inch, height=3*inch)
+                    story.append(img)
+                    story.append(Spacer(1, 10))
+
+                    story.append(Spacer(1, 30))
+                    footer_style = ParagraphStyle('FooterStyle', parent=styles['Normal'], fontSize=11, textColor=colors.HexColor('#34e89e'), alignment=1, fontName='Helvetica-Bold')
+                    story.append(Paragraph("🔬 Developed by ZUNAIR SHAHZAD | Chemical Engineering | UET Lahore", footer_style))
+
+                    doc.build(story)
+                    buffer.seek(0)
+                    return buffer
+def create_word_report(L, D, rho, mu, v, epsilon, Re, flow_type, f, dP_Pa, dP_kPa, dP_bar, dP_psi, h_f, P_W, P_kW, P_HP, Q, Q_Ls, total_K, dP_minor, fittings_list, fig=None):
+    graph_base64 = ""
+    if fig is not None:
+        buf = BytesIO()
+        fig.savefig(buf, format='png', dpi=150, bbox_inches='tight')
+        buf.seek(0)
+        graph_base64 = base64.b64encode(buf.getvalue()).decode()
+
+        fittings_html = ""
+        if fittings_list:
+            fittings_html = "<h2>Selected Fittings</h2><ul>" + "".join(f"<li>{f}</li>" for f in fittings_list) + "</ul>"
+
+            html_content = f"""<!DOCTYPE html>
+            <html>
+            <head><meta charset="UTF-8"><title>Pressure Drop Report</title>
+            <style>
+            body {{ font-family: Arial, sans-serif; margin: 40px; }}
+            h1 {{ color: #1e3c72; text-align: center; }}
+                h2 {{ color: #2a5298; margin-top: 30px; }}
+                    table {{ border-collapse: collapse; width: 100%; margin: 20px 0; }}
+                    th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
+                    th {{ background-color: #1e3c72; color: white; }}
+                        .footer {{ margin-top: 50px; text-align: center; font-size: 12px; }}
+                        .graph {{ text-align: center; margin: 20px 0; }}
+                        </style>
+                        </head>
+                        <body>
+                        <h1>Pressure Drop & Head Loss Calculator Report</h1>
+                        <p><strong>Generated:</strong> {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+
+                        <h2>Input Parameters</h2>
+                        <table>
+                        <tr><th>Parameter</th><th>Value</th></tr>
+                        <tr><td>Pipe Length (L)</td><td>{L} m</td></tr>
+                        <tr><td>Pipe Diameter (D)</td><td>{D} m</td></tr>
+                        <tr><td>Fluid Density (ρ)</td><td>{rho} kg/m³</td></tr>
+                        <tr><td>Fluid Viscosity (μ)</td><td>{mu} Pa·s</td></tr>
+                        <tr><td>Flow Velocity (v)</td><td>{v} m/s</td></tr>
+                        <tr><td>Pipe Roughness (ε)</td><td>{epsilon} mm</td></tr>
+                        {f"<tr><td>Total Minor Loss Coeff (ΣK)</td><td>{total_K:.3f}</td></tr>" if total_K > 0 else ""}
+                        </table>
+
+                        {fittings_html}
+
+                        <h2>Results</h2>
+                        <table>
+                        <tr><th>Parameter</th><th>Value</th></tr>
+                        <tr><td>Reynolds Number (Re)</td><td>{Re:,.0f}</td></tr>
+                        <tr><td>Flow Type</td><td>{flow_type}</td></tr>
+                        <tr><td>Friction Factor (f)</td><td>{f:.6f}</td></tr>
+                        {f"<tr><td>Minor Losses</td><td>{dP_minor:,.1f} Pa | {dP_minor/1000:.3f} kPa</td></tr>" if dP_minor > 0 else ""}
+                        <tr><td>Pressure Drop</td><td>{dP_Pa:,.1f} Pa | {dP_kPa:.3f} kPa | {dP_bar:.5f} bar | {dP_psi:.4f} psi</td></tr>
+                        <tr><td>Head Loss (h_f)</td><td>{h_f:.3f} m</td></tr>
+                        <tr><td>Pump Power</td><td>{P_W:,.1f} W | {P_kW:.3f} kW | {P_HP:.3f} HP</td></tr>
+                        <tr><td>Flow Rate (Q)</td><td>{Q:.5f} m³/s | {Q_Ls:.3f} L/s</td></tr>
+                        </table>
+                        """
+    if graph_base64:
+                            html_content += f'<h2>Moody Chart</h2><div class="graph"><img src="data:image/png;base64,{graph_base64}"></div>'
+
+                            html_content += f"""
+                            <div class="footer">
+                            <p style="color: #34e89e; font-weight: bold;">🔬 Developed by ZUNAIR SHAHZAD | Chemical Engineering | UET Lahore</p>
+                                </div>
+                                </body>
+                                </html>"""
+    return html_content  
+def create_txt_report(L, D, rho, mu, v, epsilon, Re, flow_type, f, dP_Pa, dP_kPa, dP_bar, dP_psi, h_f, P_W, P_kW, P_HP, Q, Q_Ls, total_K, dP_minor, fittings_list):
+    report = f"""========================================
+    PRESSURE DROP & HEAD LOSS CALCULATOR REPORT
+    ========================================
+    Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+    INPUT PARAMETERS
+    ----------------
+    Pipe Length (L): {L} m
+    Pipe Diameter (D): {D} m
+    Fluid Density (ρ): {rho} kg/m³
+    Fluid Viscosity (μ): {mu} Pa·s
+    Flow Velocity (v): {v} m/s
+    Pipe Roughness (ε): {epsilon} mm
+    """
+    if total_K > 0:
+        report += f"Total Minor Loss Coeff (ΣK): {total_K:.3f}\n"
+
+        if fittings_list:
+            report += "\nSELECTED FITTINGS\n-----------------\n"
+            for f in fittings_list:
+                report += f"• {f}\n"
+
+                report += f"""
+                RESULTS
+                -------
+                Reynolds Number (Re): {Re:,.0f}
+                Flow Type: {flow_type}
+                Friction Factor (f): {f:.6f}
+                """
+                if dP_minor > 0:
+                    report += f"Minor Losses: {dP_minor:,.1f} Pa | {dP_minor/1000:.3f} kPa\n"
+
+                    report += f"""
+                    Pressure Drop: {dP_Pa:,.1f} Pa | {dP_kPa:.3f} kPa | {dP_bar:.5f} bar | {dP_psi:.4f} psi
+                    Head Loss (h_f): {h_f:.3f} m
+                    Pump Power: {P_W:,.1f} W | {P_kW:.3f} kW | {P_HP:.3f} HP
+                    Flow Rate (Q): {Q:.5f} m³/s | {Q_Ls:.3f} L/s
+
+                    ========================================
+                    🔬 Developed by ZUNAIR SHAHZAD | Chemical Engineering | UET Lahore
+                    ========================================
+                    """
+                    return report              
 
 def show_pressure_drop_phase2():
     # Custom CSS for better styling
@@ -150,15 +361,16 @@ def show_pressure_drop_phase2():
     mode = st.radio(
         "",
         [
-            "🔬 Find Pressure Drop (ΔP) — Most Common",
-            "⚡ Find Velocity (v) — When ΔP is Known",
-            "📏 Find Diameter (D) — Pipe Sizing",
-            "📐 Find Length (L) — Maximum Pipe Length"
+            "🔬 Find Pressure Drop (ΔP) — ",
+            # "⚡ Find Velocity (v) — When ΔP is Known",
+            # "📏 Find Diameter (D) — Pipe Sizing",
+            # "📐 Find Length (L) — Maximum Pipe Length"
         ],
         help="Choose what you want to calculate based on available inputs"
     )
 
     st.markdown("---")
+    
 
     # ========== INPUT PARAMETERS ==========
     st.markdown('<div class="section-header"><h3>📥 Input Parameters</h3></div>', unsafe_allow_html=True)
@@ -182,8 +394,56 @@ def show_pressure_drop_phase2():
         g = 9.81
         st.caption(f"⚡ Gravity (g) = {g} m/s² (constant)")
 
-        st.markdown('<p style="color: #ff6666; font-weight: bold; margin-top: 1rem;">🔧 Optional: Minor Losses</p>', unsafe_allow_html=True)
-        st.caption("(Coming in Phase 4) — Elbows, valves, fittings add extra pressure drop")
+        #st.markdown('<p style="color: #ff6666; font-weight: bold; margin-top: 1rem;">🔧 Optional: Minor Losses</p>', unsafe_allow_html=True)
+        #st.caption("(Coming in Phase 4) — Elbows, valves, fittings add extra pressure drop")
+    # ========== MINOR LOSSES (FITTINGS) ==========
+    st.markdown('<div class="section-header"><h3>🔧 Minor Losses (Fittings)</h3></div>', unsafe_allow_html=True)
+    
+    fittings_db = {
+        "90° Elbow (threaded)": 1.2,
+        "90° Elbow (flanged)": 0.35,
+        "45° Elbow": 0.3,
+        "Gate valve (fully open)": 0.15,
+        "Globe valve (fully open)": 7.5,
+        "Check valve (swing)": 3.5,
+        "Tee (straight through)": 0.5,
+        "Tee (branch flow)": 1.2,
+        "Pipe entrance (sharp)": 0.5,
+        "Pipe exit": 1.0,
+    }
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        selected_fittings = st.multiselect(
+            "Select fittings in your pipeline:",
+            options=list(fittings_db.keys()),
+            help="Select all fittings present in your pipe system"
+        )
+    
+    with col2:
+        custom_K = st.number_input("Add custom K value (if known)", value=0.0, step=0.1, format="%.2f")
+        custom_label = st.text_input("Label for custom fitting", placeholder="e.g., Special valve")
+    
+    total_K = 0
+    minor_losses_details = []
+    
+    for fitting in selected_fittings:
+        k_val = fittings_db[fitting]
+        total_K += k_val
+        minor_losses_details.append(f"{fitting}: K = {k_val}")
+    
+    if custom_K > 0 and custom_label:
+        total_K += custom_K
+        minor_losses_details.append(f"{custom_label}: K = {custom_K}")
+    
+    if selected_fittings or custom_K > 0:
+        st.info(f"📌 **Total Minor Loss Coefficient (ΣK) = {total_K:.3f}**")
+        with st.expander("📋 Selected fittings details"):
+            for detail in minor_losses_details:
+                st.write(f"• {detail}")
+        st.caption("📚 Reference: Crane Technical Paper No. 410 — Flow of Fluids")
+
 
     # ========== CALCULATE BUTTON ==========
     st.markdown("---")
@@ -276,16 +536,15 @@ def show_pressure_drop_phase2():
                         <p style="margin:0; font-size:0.75rem; color:#aaa;">Re = ρ × v × D / μ</p>
                     </div>
                 """, unsafe_allow_html=True)
-            with c2:
-                st.markdown(f"""
-                    <div class="result-box" style="border-color:{flow_color};">
-                        <p style="margin:0; font-size:0.85rem; color:#aaa;">🎯 FLOW TYPE</p>
-                        <p class="result-number" style="color:{flow_color}; font-size:1.3rem;">{flow_type}</p>
-                        <p style="margin:0; font-size:0.78rem; color:#ccc;">{flow_desc}</p>
-                    </div>
-                """, unsafe_allow_html=True)
-
-            st.markdown("<br>", unsafe_allow_html=True)
+                with c2:
+                    st.markdown(f"""
+    <div class="result-box" style="border-color:{flow_color};">
+    <p style="margin:0; font-size:0.85rem; color:#aaa;">🎯 FLOW TYPE</p>
+        <p class="result-number" style="color:{flow_color}; font-size:1.3rem;">{flow_type}</p>
+        <p style="margin:0; font-size:0.78rem; color:#ccc;">{flow_desc}</p>
+            </div>
+            """, unsafe_allow_html=True)
+              
 
             # --- Friction Factor ---
             st.markdown('<div class="section-header"><h3>🔧 Friction Factor (f)</h3></div>', unsafe_allow_html=True)
@@ -352,6 +611,10 @@ def show_pressure_drop_phase2():
             """, unsafe_allow_html=True)
 
             st.markdown("<br>", unsafe_allow_html=True)
+            
+            
+
+
 
             # ========== GRAPHS ==========
             st.markdown('<div class="section-header"><h3>📈 Visual Analysis</h3></div>', unsafe_allow_html=True)

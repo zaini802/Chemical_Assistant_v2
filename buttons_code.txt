@@ -1,0 +1,59 @@
+st.markdown("<br>", unsafe_allow_html=True)
+        # ========== DOWNLOAD REPORT SECTION (Phase 2) ==========
+        st.markdown("---")
+        st.subheader("📥 Download Technical Analysis Report")
+        st.caption("PDF report includes all 4 analytical graphs (Moody Chart, ΔP vs Q, ΔP vs D, h_f vs v).")
+
+        # Pack all 4 figures into a list for the PDF function
+        all_figs = [fig1, fig2, fig3, fig4]
+
+        # Creating 3 columns for 3 different formats
+        col_btn1, col_btn2, col_btn3 = st.columns(3)
+
+        # 1. PDF Download (Most Professional)
+        with st.spinner("Preparing PDF with 4 charts..."):
+            pdf_buffer = create_pdf_report(
+                L, D, rho, mu, v, epsilon, Re, flow_type, f,
+                dP_Pa, dP_kPa, dP_bar, dP_psi, h_f, P_W, P_kW, P_HP,
+                Q, Q_Ls, total_K, 0, selected_fittings, all_figs
+            )
+        with col_btn1:
+            st.download_button(
+                label="📕 Download PDF Report",
+                data=pdf_buffer,
+                file_name=f"Pressure_Drop_Report_{datetime.now().strftime('%H%M%S')}.pdf",
+                mime="application/pdf",
+                use_container_width=True
+            )
+
+        # 2. Word Download (Editable) - Note: Ye 'with col_btn1' se BAHAR hai
+        html_rep = create_word_report(
+            L, D, rho, mu, v, epsilon, Re, flow_type, f,
+            dP_Pa, dP_kPa, dP_bar, dP_psi, h_f, P_W, P_kW, P_HP,
+            Q, Q_Ls, total_K, 0, selected_fittings, fig1
+        )
+        with col_btn2:
+            st.download_button(
+                label="📘 Download Word Report",
+                data=html_rep,
+                file_name="Pressure_Drop_Report.doc",
+                mime="application/msword",
+                use_container_width=True
+            )
+
+        # 3. TXT Download (Fast Summary) - Note: Ye bhi bahar hai
+        txt_rep = create_txt_report(
+            L, D, rho, mu, v, epsilon, Re, flow_type, f,
+            dP_Pa, dP_kPa, dP_bar, dP_psi, h_f, P_W, P_kW, P_HP,
+            Q, Q_Ls, total_K, 0, selected_fittings
+        )
+        with col_btn3:
+            st.download_button(
+                label="📄 Download TXT Report",
+                data=txt_rep,
+                file_name="Pressure_Drop_Report.txt",
+                mime="text/plain",
+                use_container_width=True
+            )
+
+        st.markdown("<br>", unsafe_allow_html=True)
