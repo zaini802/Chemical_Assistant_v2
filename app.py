@@ -46,6 +46,9 @@ elif page == "Heat Transfer":
 elif page == "Pressure Drop":
     from pages.Pressure_drop.phase_2 import show_pressure_drop_phase2
     show_pressure_drop_phase2()
+elif page == "Heat Exchanger":
+    from pages.heat_exchanger import show_heat_exchanger
+    show_heat_exchanger()    
 elif page == "Chatbot":
     from pages.chatbot import show_chatbot
     show_chatbot()
