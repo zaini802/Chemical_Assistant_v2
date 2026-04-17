@@ -2,6 +2,8 @@ import streamlit as st
 import math
 
 def show_unit_converter():
+    if "selected_category" not in st.session_state:
+        st.session_state.selected_category = "Basic"
     # Custom CSS for professional styling
     st.markdown("""
         <style>
