@@ -48,7 +48,13 @@ elif page == "Pressure Drop":
     show_pressure_drop_phase2()
 elif page == "Heat Exchanger":
     from pages.heat_exchanger import show_heat_exchanger
-    show_heat_exchanger()    
+    show_heat_exchanger()
+elif page == "Unit Converter":
+    from pages.unit_converter import show_unit_converter
+    show_unit_converter()
+elif page == "Formulas":
+    from pages.formulas import show_formulas
+    show_formulas()           
 elif page == "Chatbot":
     from pages.chatbot import show_chatbot
     show_chatbot()
