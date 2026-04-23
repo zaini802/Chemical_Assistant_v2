@@ -5,7 +5,7 @@ import os
 def show_sidebar():
     with st.sidebar:
         # Profile picture at top
-        img_path = r"D:/My_Projects/Chemical_Assistant_v2/images/zunair.jpeg"
+        img_path = "images/zunair.jpeg"
         if os.path.exists(img_path):
             img = Image.open(img_path)
             st.image(img, width=140)
