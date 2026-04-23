@@ -1,0 +1,10 @@
+streamlit
+numpy
+pandas
+plotly
+matplotlib
+reportlab
+Pillow
+google-generativeai
+groq
+certifi
