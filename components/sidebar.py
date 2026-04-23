@@ -84,10 +84,10 @@ box-shadow: 0 2px 8px rgba(0,0,0,0.2);'>
                 "📉 Pressure Drop",
                 "🔄 Unit Converter",
                 "🌡️ Heat Exchanger",
-                "⚠️ Safety Analyzer",
-                "📚 Formulas",
-                "💡 Concepts",
-                "💬 Chatbot"
+                #"⚠️ Safety Analyzer",
+                #"📚 Formulas",
+                #"💡 Concepts",
+                "💬 EngiChat"
             ],
             label_visibility="collapsed"
         )
@@ -112,13 +112,13 @@ box-shadow: 0 2px 8px rgba(0,0,0,0.2);'>
         </div>
         """, unsafe_allow_html=True)
 
-        st.markdown("""
-        <p style='font-weight: bold; color: #ff6666; margin-bottom: 5px; margin-top: 10px;'>
-            🌐 LANGUAGE
-        </p>
-        """, unsafe_allow_html=True)
+        # st.markdown("""
+        # <p style='font-weight: bold; color: #ff6666; margin-bottom: 5px; margin-top: 10px;'>
+        #     🌐 LANGUAGE
+        # </p>
+        # """, unsafe_allow_html=True)
 
-        st.selectbox("", ["English", "Urdu", "Hindi", "Arabic", "Spanish", "French", "German", "Chinese", "Turkish", "Russian"], label_visibility="collapsed")
+        # st.selectbox("", ["English", "Urdu", "Hindi", "Arabic", "Spanish", "French", "German", "Chinese", "Turkish", "Russian"], label_visibility="collapsed")
 
         page_map = {
             "🏠 Home": "Home",
@@ -127,10 +127,10 @@ box-shadow: 0 2px 8px rgba(0,0,0,0.2);'>
             "📉 Pressure Drop": "Pressure Drop",
             "🔄 Unit Converter": "Unit Converter",
             "🌡️ Heat Exchanger": "Heat Exchanger",
-            "⚠️ Safety Analyzer": "Safety Analyzer",
-            "📚 Formulas": "Formulas",
-            "💡 Concepts": "Concepts",
-            "💬 Chatbot": "Chatbot"
+            #"⚠️ Safety Analyzer": "Safety Analyzer",
+            #"📚 Formulas": "Formulas",
+            #"💡 Concepts": "Concepts",
+            "💬 EngiChat": "EngiChat"
         }
 
         return page_map[page]

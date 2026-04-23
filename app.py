@@ -55,8 +55,8 @@ elif page == "Unit Converter":
 elif page == "Formulas":
     from pages.formulas import show_formulas
     show_formulas()           
-elif page == "Chatbot":
-    from pages.chatbot import show_chatbot
+elif page == "EngiChat":
+    from pages.engichat import show_chatbot
     show_chatbot()
 else:
     st.header(page)

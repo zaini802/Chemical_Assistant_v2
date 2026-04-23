@@ -2689,20 +2689,20 @@ def show_heat_exchanger():
         import pandas as pd
         st.dataframe(pd.DataFrame(ref_data), use_container_width=True, hide_index=True)
 
-    # ========== FOOTER ==========
-st.markdown("""
-<div style="text-align: center; padding: 1rem; background: linear-gradient(135deg, #0f3443, #1a5a6e); border-radius: 10px; margin-top: 2rem;">
-<p style="margin: 0;">
-<span style="color: #2ecc71; font-weight: bold;">🔬</span>
-    <span style="color: #2ecc71;"> Developed by </span>
-        <span style="color: white; font-weight: bold;">ZUNAIR SHAHZAD</span>
-        <span style="color: #FFD700;"> | </span>
-            <span style="color: #FFD700;">Chemical Engineering</span>
-                <span style="color: #FFD700;"> | </span>
-                    <span style="color: #FFD700;">UET Lahore</span>
-                        </p>
-                        </div>
-                        """, unsafe_allow_html=True)
+#     # ========== FOOTER ==========
+# st.markdown("""
+# <div style="text-align: center; padding: 1rem; background: linear-gradient(135deg, #0f3443, #1a5a6e); border-radius: 10px; margin-top: 2rem;">
+# <p style="margin: 0;">
+# <span style="color: #2ecc71; font-weight: bold;">🔬</span>
+#     <span style="color: #2ecc71;"> Developed by </span>
+#         <span style="color: white; font-weight: bold;">ZUNAIR SHAHZAD</span>
+#         <span style="color: #FFD700;"> | </span>
+#             <span style="color: #FFD700;">Chemical Engineering</span>
+#                 <span style="color: #FFD700;"> | </span>
+#                     <span style="color: #FFD700;">UET Lahore</span>
+#                         </p>
+#                         </div>
+#                         """, unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Entry point (when run directly for testing)
